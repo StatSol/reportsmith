@@ -1,7 +1,7 @@
 """
 reportsmith.py - accepts command line argument to determine site-id, 
 consumes delimited data on a pipe, writes data to a .csv, and uploads .csv via FTP
-version 1.0 tested using Python 2.7.5 on Windows 7 x64
+version 1.01 tested using Python 2.7.5 on Windows 7 x64
 """
 
 #HIGH
@@ -49,7 +49,7 @@ def readArgs():
 						help='Assigns the value specified to the variable siteID')
 	argParser.add_argument('-r', '--report-id', action='store', dest='reportID',
 						help='Assigns the value specified to the variable reportID, not being used in this version')
-	argParser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0')
+	argParser.add_argument('-v', '--version', action='version', version='%(prog)s 1.01')
 	results = argParser.parse_args()
 	global siteID,siteName
 	siteID = str(results.siteID)

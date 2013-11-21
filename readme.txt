@@ -1,7 +1,7 @@
 """
 reportsmith.py - accepts command line argument to determine site-id, 
 consumes delimited data on a pipe, writes data to a .csv, and uploads .csv via FTP
-version 1.0 tested using Python 2.7.5 on Windows 7 x64
+version 1.01 tested using Python 2.7.5 on Windows 7 x64
 """
 
 usage: reportsmith.py [-h] [-s SITEID] [-n SITENAME] [-r REPORTID] [-v]
