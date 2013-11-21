@@ -33,6 +33,6 @@ field6 = 'DATE'
 field7 = 'TIME'
 
 [ftp]
-url = ftp.statusops.com
-username = emiller
-password = t3$tt3$t
+url = ftp.domain.com
+username = name
+password = password
