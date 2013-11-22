@@ -1,8 +1,10 @@
-"""
-reportsmith.py - accepts command line argument to determine site-id, 
-consumes delimited data on a pipe, writes data to a .csv, and uploads .csv via FTP
-version 1.03 tested using Python 2.7.5 on Windows 7 x64
-"""
+reportsmith.py - version 1.03 tested using Python 2.7.5 on Windows 7 x64
+- Accepts command line argument to determine site-id and SiteName
+- Allows for commonly configurable settings to be edited via reportsmith.config
+- Consumes delimited data on a pipe
+- Writes data to a .csv
+- Uploads .csv via FTP
+
 
 usage: reportsmith.py [-h] [-s SITEID] [-n SITENAME] [-r REPORTID] [-v]
 
@@ -51,7 +53,7 @@ INFO	20
 DEBUG	10
 NOTSET	0 (not used in this module)
 
-
+\\statsol\\utils
 
 #TODO logic in writeRows() to build DoW, HoD, Date, & Time fields
 
@@ -59,6 +61,7 @@ NOTSET	0 (not used in this module)
 #TODO make logfile path configurable via config file, default is statsol/trace
 #TOD) make .csv output file configurable via config file, default is statsol/trace/sched_report_files/
 
+#TODO change repeat of str() method in date conversion section
 #TODO include rowcount in log output for "finished writing" event
 #TODO field mapping in config file to change order of piped values so Alfredo doesn't have to mess with pipe code to change order
 #TODO catch extra delimiters and handle exception AND LOG THIS WITH WARNING

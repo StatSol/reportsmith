@@ -59,9 +59,8 @@ def logger(msg, level):
 def timeStamped(fmt='%Y-%m-%d-%Hh-%Mm-%Ss'):
     return datetime.datetime.now().strftime(fmt)
 	
-def findOccurences(s, ch):
-	#used to test for embedded delimiters
-    return [i for i, letter in enumerate(s) if letter == ch]
+def delimTest(s, ch):
+    return len([i for i, letter in enumerate(s) if letter == ch])
 	
 def writeFile():
 	logger('Writing header', 'info')
@@ -74,18 +73,39 @@ def writeFile():
 	logger('Writing header DONE', 'info')
 	
 	logger('Writing data', 'info')
-	fieldCount = int(confParser.get('data', 'fieldCount'))-1#determine number of fields, to be used to catch extra delimiters in data values
+	delimCount = int(confParser.get('data', 'delimCount'))
 	for line in sys.stdin:
-		#masterList.append(line) #uncomment if you want to manipulate (do math) on the data as a list.  be sure to declare masterlist = []
-		#line = line[:-2] #uncomment this in cases where you'd like remove the /n newline from the last value in each line
+		#test each processed row of piped data for embedded delimiters
+		if delimTest(line, "\t") != delimCount:
+			logger('EMBEDDED DELIMITER LINE '+ line, 'warning')
+			print(delimCount,delimTest(line, "\t"))
+			
+		#remove any output delimiters from piped data
+		line = line.replace(",", "")
+		if line.find(",") >= 0:
+			print("COMMA: ", line)
 		
-		test = findOccurences(line, "\t")#configure delimiter here
-		line = line.split("\t")#configure delimiter here
-		line.insert(0,siteID) #first column
-		
-	
+		#insert siteID in column 0 of each row, and write the piped data
+		line = line.split("\t")
+		line.insert(0,siteID)
 		line = ",".join(line)
+		line = line[:-2] #comment this out to turn off newline suppression
 		outf.writelines(line)
+		outf.write(',')
+		
+		#convert and append DoW, HoD, DATE and TIME to each row
+		unixTime = int(line[1])
+		timeTuple = time.localtime(unixTime)
+		dayOfWeek = timeTuple.tm_wday
+		week = {0:'Monday', 1:'Tuesday', 2:'Wednesday', 3:'Thursday', 4:'Friday', 5:'Saturday', 6:'Sunday'}
+		outf.write(week[dayOfWeek])
+		outf.write(',')
+		outf.write(str(timeTuple.tm_hour)+","+str(timeTuple.tm_mon)+"/"+str(timeTuple.tm_mday)+"/"+str(timeTuple.tm_year)+",")
+		outf.write(str(timeTuple.tm_hour)+":"+str(timeTuple.tm_min)+":"+str(timeTuple.tm_sec))
+
+
+		
+		outf.write('\n')
 	outf.close()
 	logger('Writing data DONE', 'info')
 	
@@ -105,10 +125,10 @@ def teardown():
 	logger('Cleaning up logs and tempfiles', 'info')
 	finishTime = str(round(time.time() - startTime,1))
 	logger('Operation completed in ' + finishTime + ' seconds.', 'info')
-	sys.exit
+	sys.exit()
 
 if __name__ == '__main__':
 	setup()
 	writeFile()
-	#upload()
+	upload()
 	teardown()
