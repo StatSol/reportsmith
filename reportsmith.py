@@ -30,6 +30,7 @@ from ConfigParser import SafeConfigParser
 
 def setup():
 	#setup configparser @ ./reportsmith.config, assign some values from config and command line args, ready the .csv for writing, start a timer
+	os.chdir("C:\\Users\\user\\Desktop\\reportsmith") #changes CWD focus to this module's directory
 	global confParser, outf, startTime, consoleLogging
 	confParser = SafeConfigParser()
 	confParser.read('reportsmith.config')
