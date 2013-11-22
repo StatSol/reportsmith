@@ -1,7 +1,7 @@
 """
 reportsmith.py - accepts command line argument to determine site-id, 
 consumes delimited data on a pipe, writes data to a .csv, and uploads .csv via FTP
-version 1.01 tested using Python 2.7.5 on Windows 7 x64
+version 1.02 tested using Python 2.7.5 on Windows 7 x64
 """
 
 #HIGH
@@ -11,7 +11,6 @@ version 1.01 tested using Python 2.7.5 on Windows 7 x64
 
 #MED
 #TODO catch extra delimiters and handle exception
-#TODO console output verbosity (on/off)
 #TODO logging
 #TODO logfile rentention/cleanup (config file)
 #TODO local .csv retention/cleanup (config file)
@@ -31,14 +30,17 @@ from ConfigParser import SafeConfigParser
 
 def setup():
 	#setup configparser @ ./reportsmith.config, assign some values from config and command line args, ready the .csv for writing, start a timer
-	print('Beginning setup...'),
-	global confParser, outf, startTime
+	global confParser, outf, startTime, consoleLogging
 	confParser = SafeConfigParser()
 	confParser.read('reportsmith.config')
+	consoleLogging = confParser.get('general', 'consoleLogging')
+	if consoleLogging == 'on':
+		print('Beginning setup...'),
 	readArgs() #processes readargs() function to populate global vars from command line args
 	outf = open(siteName+"-"+siteID+"-"+timeStamped()+".csv",'w') #open .csv for writing
 	startTime = time.time()
-	print("DONE")
+	if consoleLogging == 'on':
+		print("DONE")
 
 def readArgs():
 	#read arguments from the command line and assign values passed from those arguments
@@ -49,7 +51,7 @@ def readArgs():
 						help='Assigns the value specified to the variable siteID')
 	argParser.add_argument('-r', '--report-id', action='store', dest='reportID',
 						help='Assigns the value specified to the variable reportID, not being used in this version')
-	argParser.add_argument('-v', '--version', action='version', version='%(prog)s 1.01')
+	argParser.add_argument('-v', '--version', action='version', version='%(prog)s 1.02')
 	results = argParser.parse_args()
 	global siteID,siteName
 	siteID = str(results.siteID)
@@ -66,14 +68,16 @@ def findOccurences(s, ch):
 	
 def writeFile():
 	#write header row from config data
-	print('Writing header...'),
+	if consoleLogging == 'on':
+		print('Writing header...'),
 	for name in confParser.options('fields'):
 		fieldValue = confParser.get('fields', name)
 		fieldValue = fieldValue.replace("'", "")
 		outf.write(fieldValue)
 		outf.write(',')
 	outf.write('\n')
-	print("DONE")
+	if consoleLogging == 'on':
+		print("DONE")
 	
 	"""
 	#write csv out line by line from stdin
@@ -94,7 +98,8 @@ def writeFile():
 	#write csv out line by line from stdin
 	#we read string from stdin, break it apart into a list(), insert some values from config and command line args
 	#do string manipulation on some list values, then join it back to a comma delimited list to write to file.
-	print('Writing rows...'),
+	if consoleLogging == 'on':
+		print('Writing rows...'),
 	fieldCount = int(confParser.get('data', 'fieldCount'))-1#determine number of fields, to be used to catch extra delimiters in data values
 	for line in sys.stdin:
 		#masterList.append(line) #uncomment if you want to manipulate (do math) on the data as a list.  be sure to declare masterlist = []
@@ -108,11 +113,13 @@ def writeFile():
 		line = ",".join(line)
 		outf.writelines(line)
 	outf.close()
-	print("DONE")
+	if consoleLogging == 'on':
+		print("DONE")
 	
 def upload():
 	#upload a file via ftp using credentials in ./reportsmith.config
-	print('Beginning FTP upload...'),
+	if consoleLogging == 'on':
+		print('Beginning FTP upload...'),
 	FTPurl = confParser.get('ftp', 'url')
 	FTPusername = confParser.get('ftp', 'username')
 	FTPpassword = confParser.get('ftp', 'password')
@@ -121,12 +128,14 @@ def upload():
 	ftp.login(FTPusername,FTPpassword)
 	ext = os.path.splitext(file)[1]
 	ftp.storlines("STOR " + file, open(file))
-	print("DONE")
+	if consoleLogging == 'on':
+		print("DONE")
 	
 def teardown():
 	#log, and clean up logs and local versions of the .csv
 	finishTime = str(round(time.time() - startTime,1))
-	print("Operation completed in " + finishTime + " seconds.")
+	if consoleLogging == 'on':
+		print("Operation completed in " + finishTime + " seconds.")
 	sys.exit
 
 if __name__ == '__main__':
