@@ -77,7 +77,7 @@ def writeFile():
 	for line in sys.stdin:
 		#test each processed row of piped data for embedded delimiters
 		if delimTest(line, "\t") != delimCount:
-			logger('EMBEDDED DELIMITER\n'+ line, 'WARNING')
+			logger('DELIMITER COUNT MISMATCH', 'WARNING')
 			print(delimCount,delimTest(line, "\t"))
 			
 		#remove any output delimiters from piped data
