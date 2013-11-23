@@ -30,7 +30,7 @@ def setup():
 	logger('Operation started', 'INFO')
 	logger('Starting setup', 'INFO')
 	readArgs()
-	outf = open(siteName+"-"+siteID+"-"+timeStamped()+".csv",'w')
+	outf = open(siteID+"-"+siteName+"-"+timeStamped()+".csv",'w')
 	startTime = time.time()
 	logger('Setup DONE', 'INFO')
 
@@ -52,8 +52,8 @@ def readArgs():
 def logger(msg, level):
 	if consoleLogging == 'on':
 		print(level+":"+msg)
-	loggingLevel = {'DEBUG':10, 'INFO':20, 'WARNING':30, 'ERROR':40, 'CRITICAL':50}
 	if fileLogging == 'on':
+		loggingLevel = {'DEBUG':10, 'INFO':20, 'WARNING':30, 'ERROR':40, 'CRITICAL':50}
 		logging.log(loggingLevel[level], msg)
 
 def timeStamped(fmt='%Y-%m-%d-%Hh-%Mm-%Ss'):

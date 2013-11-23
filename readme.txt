@@ -5,7 +5,6 @@ reportsmith.py - version 1.03 tested using Python 2.7.5 on Windows 7 x64
 - Writes data to a .csv
 - Uploads .csv via FTP
 
-
 usage: reportsmith.py [-h] [-s SITEID] [-n SITENAME] [-r REPORTID] [-v]
 
 optional arguments:
@@ -18,31 +17,6 @@ optional arguments:
                         Assigns the value specified to the variable reportID,
                         not being used in this version
   -v, --version         show program's version number and exit
-
-
-###reportsmith.config###
-[general]
-consoleLogging = on
-logging = on
-version = 1.03
-
-[data]
-fieldCount = 6
-
-[fields]
-field0 = 'SITE_ID'
-field1 = 'AD.ALM_DESC'
-field2 = 'ADT.DESC'
-field3 = 'RESPONSE_TIME'
-field4 = 'DoW'
-field5 = 'HoD'
-field6 = 'DATE'
-field7 = 'TIME'
-
-[ftp]
-url = ftp.domain.com
-username = name
-password = password
 
 ###logging levels###
 Level	Numeric value
