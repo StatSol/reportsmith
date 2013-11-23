@@ -77,13 +77,13 @@ def writeFile():
 	for line in sys.stdin:
 		#test each processed row of piped data for embedded delimiters
 		if delimTest(line, "\t") != delimCount:
-			logger('EMBEDDED DELIMITER LINE '+ line, 'WARNING')
+			logger('EMBEDDED DELIMITER\n'+ line, 'WARNING')
 			print(delimCount,delimTest(line, "\t"))
 			
 		#remove any output delimiters from piped data
-		line = line.replace(",", "")
 		if line.find(",") >= 0:
-			print("COMMA: ", line)
+			logger('REMOVING EMBEDDED COMMA(S)\n'+ line, 'WARNING')
+			line = line.replace(",", "")
 		
 		#insert siteID in column 0 of each row, and write the piped data
 		line = line.split("\t")
