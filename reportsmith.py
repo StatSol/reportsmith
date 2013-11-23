@@ -27,12 +27,12 @@ def setup():
 	consoleLogging = confParser.get('general', 'consoleLogging')
 	logging.basicConfig(filename='ReportSmithLog-'+timeStamped()+'.log', format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',level=logging.DEBUG)
 
-	logger('Operation started', 'info')
-	logger('Starting setup', 'info')
+	logger('Operation started', 'INFO')
+	logger('Starting setup', 'INFO')
 	readArgs()
 	outf = open(siteName+"-"+siteID+"-"+timeStamped()+".csv",'w')
 	startTime = time.time()
-	logger('Setup DONE', 'info')
+	logger('Setup DONE', 'INFO')
 
 def readArgs():
 	argParser = argparse.ArgumentParser()
@@ -52,7 +52,7 @@ def readArgs():
 def logger(msg, level):
 	if consoleLogging == 'on':
 		print(level+":"+msg)
-	loggingLevel = {'debug':10, 'info':20, 'warning':30, 'error':40, 'critical':50}
+	loggingLevel = {'DEBUG':10, 'INFO':20, 'WARNING':30, 'ERROR':40, 'CRITICAL':50}
 	if fileLogging == 'on':
 		logging.log(loggingLevel[level], msg)
 
@@ -63,21 +63,21 @@ def delimTest(s, ch):
     return len([i for i, letter in enumerate(s) if letter == ch])
 	
 def writeFile():
-	logger('Writing header', 'info')
+	logger('Writing header', 'INFO')
 	for name in confParser.options('fields'):
 		fieldValue = confParser.get('fields', name)
 		fieldValue = fieldValue.replace("'", "")
 		outf.write(fieldValue)
 		outf.write(',')
 	outf.write('\n')
-	logger('Writing header DONE', 'info')
+	logger('Writing header DONE', 'INFO')
 	
-	logger('Writing data', 'info')
+	logger('Writing data', 'INFO')
 	delimCount = int(confParser.get('data', 'delimCount'))
 	for line in sys.stdin:
 		#test each processed row of piped data for embedded delimiters
 		if delimTest(line, "\t") != delimCount:
-			logger('EMBEDDED DELIMITER LINE '+ line, 'warning')
+			logger('EMBEDDED DELIMITER LINE '+ line, 'WARNING')
 			print(delimCount,delimTest(line, "\t"))
 			
 		#remove any output delimiters from piped data
@@ -87,6 +87,7 @@ def writeFile():
 		
 		#insert siteID in column 0 of each row, and write the piped data
 		line = line.split("\t")
+		unixTime = int(line[1])#used below to convert time
 		line.insert(0,siteID)
 		line = ",".join(line)
 		line = line[:-2] #comment this out to turn off newline suppression
@@ -94,7 +95,6 @@ def writeFile():
 		outf.write(',')
 		
 		#convert and append DoW, HoD, DATE and TIME to each row
-		unixTime = int(line[1])
 		timeTuple = time.localtime(unixTime)
 		dayOfWeek = timeTuple.tm_wday
 		week = {0:'Monday', 1:'Tuesday', 2:'Wednesday', 3:'Thursday', 4:'Friday', 5:'Saturday', 6:'Sunday'}
@@ -102,15 +102,12 @@ def writeFile():
 		outf.write(',')
 		outf.write(str(timeTuple.tm_hour)+","+str(timeTuple.tm_mon)+"/"+str(timeTuple.tm_mday)+"/"+str(timeTuple.tm_year)+",")
 		outf.write(str(timeTuple.tm_hour)+":"+str(timeTuple.tm_min)+":"+str(timeTuple.tm_sec))
-
-
-		
 		outf.write('\n')
 	outf.close()
-	logger('Writing data DONE', 'info')
+	logger('Writing data DONE', 'INFO')
 	
 def upload():
-	logger('Beginning FTP upload', 'info')
+	logger('Beginning FTP upload', 'INFO')
 	FTPurl = confParser.get('ftp', 'url')
 	FTPusername = confParser.get('ftp', 'username')
 	FTPpassword = confParser.get('ftp', 'password')
@@ -119,12 +116,12 @@ def upload():
 	ftp.login(FTPusername,FTPpassword)
 	ext = os.path.splitext(file)[1]
 	ftp.storlines("STOR " + file, open(file))
-	logger('FTP upload DONE', 'info')
+	logger('FTP upload DONE', 'INFO')
 	
 def teardown():
-	logger('Cleaning up logs and tempfiles', 'info')
+	logger('Cleaning up logs and tempfiles', 'INFO')
 	finishTime = str(round(time.time() - startTime,1))
-	logger('Operation completed in ' + finishTime + ' seconds.', 'info')
+	logger('Operation completed in ' + finishTime + ' seconds.', 'INFO')
 	sys.exit()
 
 if __name__ == '__main__':
