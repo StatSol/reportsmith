@@ -5,6 +5,8 @@ reportsmith.py - version 1.03 tested using Python 2.7.5 on Windows 7 x64
 - Writes data to a .csv
 - Uploads .csv via FTP
 
+cat sample.csv | python reportsmith.py -s 1234 -n "Test Site"
+
 usage: reportsmith.py [-h] [-s SITEID] [-n SITENAME] [-r REPORTID] [-v]
 
 optional arguments:

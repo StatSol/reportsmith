@@ -18,14 +18,14 @@ from ConfigParser import SafeConfigParser
 
 def setup():
 	os.chdir("C:\\Users\\user\\Desktop\\reportsmith")
-	global confParser, outf, startTime, consoleLogging, fileLogging
+	global confParser, outf, startTime
 	
 	confParser = SafeConfigParser()
 	confParser.read('reportsmith.config')
 	
-	fileLogging = confParser.get('general', 'logging')
-	consoleLogging = confParser.get('general', 'consoleLogging')
-	logging.basicConfig(filename='ReportSmithLog-'+timeStamped()+'.log', format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',level=logging.DEBUG)
+	logging.basicConfig(
+		filename='ReportSmithLog-'+timeStamped()+'.log', 
+		format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',level=logging.DEBUG)
 
 	logger('Operation started', 'INFO')
 	logger('Starting setup', 'INFO')
@@ -35,6 +35,7 @@ def setup():
 	logger('Setup DONE', 'INFO')
 
 def readArgs():
+	global siteID,siteName
 	argParser = argparse.ArgumentParser()
 	argParser.add_argument('-s', '--site-id', action='store', dest='siteID',
 						help='Assigns the value specified to the variable siteID')
@@ -44,18 +45,16 @@ def readArgs():
 						help='Assigns the value specified to the variable reportID, not being used in this version')
 	argParser.add_argument('-v', '--version', action='version', version='%(prog)s 1.03')
 	results = argParser.parse_args()
-	global siteID,siteName
 	siteID = str(results.siteID)
 	siteName = str(results.siteName)
 	#reportID = str(results.reportID) reserved for future use
 
 def logger(msg, level):
-	if consoleLogging == 'on':
+	if confParser.get('general', 'consoleLogging') == 'on':
 		print(level+":"+msg)
-	if fileLogging == 'on':
-		loggingLevel = {'DEBUG':10, 'INFO':20, 'WARNING':30, 'ERROR':40, 'CRITICAL':50}
-		logging.log(loggingLevel[level], msg)
-
+	if confParser.get('general', 'logging') == 'on':
+		logging.log({'DEBUG':10, 'INFO':20, 'WARNING':30, 'ERROR':40, 'CRITICAL':50}.get(level), msg)
+		
 def timeStamped(fmt='%Y-%m-%d-%Hh-%Mm-%Ss'):
     return datetime.datetime.now().strftime(fmt)
 	
@@ -65,10 +64,7 @@ def delimTest(s, ch):
 def writeFile():
 	logger('Writing header', 'INFO')
 	for name in confParser.options('fields'):
-		fieldValue = confParser.get('fields', name)
-		fieldValue = fieldValue.replace("'", "")
-		outf.write(fieldValue)
-		outf.write(',')
+		outf.write(confParser.get('fields', name).replace("'", "")+',')
 	outf.write('\n')
 	logger('Writing header DONE', 'INFO')
 	
@@ -78,7 +74,6 @@ def writeFile():
 		#test each processed row of piped data for embedded delimiters
 		if delimTest(line, "\t") != delimCount:
 			logger('DELIMITER COUNT MISMATCH', 'WARNING')
-			print(delimCount,delimTest(line, "\t"))
 			
 		#remove any output delimiters from piped data
 		if line.find(",") >= 0:
@@ -127,5 +122,5 @@ def teardown():
 if __name__ == '__main__':
 	setup()
 	writeFile()
-	upload()
+	#upload()
 	teardown()
