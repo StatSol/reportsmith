@@ -1,5 +1,5 @@
 """
-reportsmith.py - version 1.03 tested using Python 2.7.5 on Windows 7 x64
+reportsmith.py - version 1.04 tested using Python 2.7.5 on Windows 7 x64
 - Accepts command line argument to determine site-id and SiteName
 - Allows for commonly configurable settings to be edited via reportsmith.config
 - Consumes delimited data on a pipe
@@ -22,15 +22,16 @@ def setup():
 	
 	confParser = SafeConfigParser()
 	confParser.read('reportsmith.config')
+	readArgs()
 	
 	logging.basicConfig(
-		filename='ReportSmithLog-'+timeStamped()+'.log', 
+		filename=confParser.get('general', 'logDir')+'ReportSmithLog-'+timeStamped()+'.log', 
 		format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',level=logging.DEBUG)
 
 	logger('Operation started', 'INFO')
 	logger('Starting setup', 'INFO')
-	readArgs()
-	outf = open(siteID+"-"+siteName+"-"+timeStamped()+".csv",'w')
+	
+	outf = open(confParser.get('general', 'outputDir')+siteID+"-"+siteName+"-"+timeStamped()+".csv",'w')
 	startTime = time.time()
 	logger('Setup DONE', 'INFO')
 
@@ -43,7 +44,7 @@ def readArgs():
 						help='Assigns the value specified to the variable siteID')
 	argParser.add_argument('-r', '--report-id', action='store', dest='reportID',
 						help='Assigns the value specified to the variable reportID, not being used in this version')
-	argParser.add_argument('-v', '--version', action='version', version='%(prog)s 1.03')
+	argParser.add_argument('-v', '--version', action='version', version=confParser.get('general', 'version'))
 	results = argParser.parse_args()
 	siteID = str(results.siteID)
 	siteName = str(results.siteName)
@@ -64,16 +65,17 @@ def delimTest(s, ch):
 def writeFile():
 	logger('Writing header', 'INFO')
 	for name in confParser.options('fields'):
-		outf.write(confParser.get('fields', name).replace("'", "")+',')
+		outf.write(confParser.get('fields', name)+',')
 	outf.write('\n')
 	logger('Writing header DONE', 'INFO')
 	
 	logger('Writing data', 'INFO')
+	lineCount =0
 	delimCount = int(confParser.get('data', 'delimCount'))
 	for line in sys.stdin:
 		#test each processed row of piped data for embedded delimiters
 		if delimTest(line, "\t") != delimCount:
-			logger('DELIMITER COUNT MISMATCH', 'WARNING')
+			logger('DELIMITER COUNT MISMATCH', 'CRITICAL')
 			
 		#remove any output delimiters from piped data
 		if line.find(",") >= 0:
@@ -93,12 +95,13 @@ def writeFile():
 		timeTuple = time.localtime(unixTime)
 		dayOfWeek = timeTuple.tm_wday
 		week = {0:'Monday', 1:'Tuesday', 2:'Wednesday', 3:'Thursday', 4:'Friday', 5:'Saturday', 6:'Sunday'}
-		outf.write(week[dayOfWeek])
-		outf.write(',')
+		outf.write(week[dayOfWeek]+',')
 		outf.write(str(timeTuple.tm_hour)+","+str(timeTuple.tm_mon)+"/"+str(timeTuple.tm_mday)+"/"+str(timeTuple.tm_year)+",")
-		outf.write(str(timeTuple.tm_hour)+":"+str(timeTuple.tm_min)+":"+str(timeTuple.tm_sec))
-		outf.write('\n')
+		outf.write(str(timeTuple.tm_hour)+":"+str(timeTuple.tm_min)+":"+str(timeTuple.tm_sec)+'\n')
+		
+		lineCount += 1
 	outf.close()
+	logger('Wrote '+str(lineCount)+' lines', 'INFO')
 	logger('Writing data DONE', 'INFO')
 	
 def upload():

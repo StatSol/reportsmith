@@ -1,0 +1,11 @@
+1.04 -24NOV2013
+=====================================================================
+make logfile path configurable via config file, default is C:\\statsol\\trace\\
+make .csv output file configurable via config file, default is C:\\statsol\\trace\\sched_report_files\\
+pull version number from config
+re-factored header write function/config file to use no quote around config data
+catch extra delimiters and log exceptions
+changed delimiter mismatch to CRITICAL for logging
+re-factored Dow/Hod/Time write to file code
+moved readArgs() to prevent error when -v switch is used
+nclude rowcount in log output for "finished writing" event
