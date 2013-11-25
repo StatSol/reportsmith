@@ -31,8 +31,6 @@ NOTSET	0 (not used in this module)
 
 \\statsol\\utils
 
-#TODO logic in writeRows() to build DoW, HoD, Date, & Time fields
-
 #TODO error handling try/except >> log
 #TODO make logfile path configurable via config file, default is statsol/trace
 #TOD) make .csv output file configurable via config file, default is statsol/trace/sched_report_files/
